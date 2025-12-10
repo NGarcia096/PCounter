@@ -113,6 +113,29 @@
                             </div>
 
                             <h2 class="mb-3">Extra</h2>
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Name:</span>
+                                        <input type="text" class="form-control" id="newField">
+                                        <button class="btn btn-primary" id="createFieldBtn">Create</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-center">
+                                <div class="col-md-5" id="left">
+                                </div>
+
+                                <div class="col-md-5" id="right">
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-center mt-3">
+                                <div class="col-md-1">
+                                    <button class="btn btn-warning" id="clearBtn">Clear</button>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -123,67 +146,129 @@
     </body>
 
     <script>
-        
-        function UpdateCounter(product, amount) {
-            var counter = parseInt(product.val()) || 0;
-            counter += amount;
-            if (counter < 0) {
-                counter = 0;
-            }
-            product.val(counter);
-            return counter;
-        }
-
-        function SaveToLS(name, data) {
-            localStorage.setItem(name.toString(), data.toString());
-        }
-
-        function GetLSItem(name) {
-            var value = localStorage.getItem(name);
-            if (value !== null) {
-                return parseInt(value);
-            } else {
-                return 0;
-            }
-        }
-
-        function GrabGeneralLSItems() {
-            $("#iss1").val(GetLSItem("iss1"))
-            $("#iss2").val(GetLSItem("iss2"))
-            $("#iss3").val(GetLSItem("iss3"))
-            $("#ogShirt").val(GetLSItem("ogShirt"))
-            $("#bwShirt").val(GetLSItem("bwShirt"))
-            $("#obcShirt").val(GetLSItem("obcShirt"))
-            $("#ogTop").val(GetLSItem("ogTop"))
-            $("#hat").val(GetLSItem("hat"))
-            $("#beanie").val(GetLSItem("beanie"))
-            $("#pin").val(GetLSItem("pin"))
-        }
-
-        function ClearGeneralLSItems() {
-            localStorage.removeItem("iss1", "0");
-            localStorage.removeItem("iss2", "0");
-            localStorage.removeItem("iss3", "0");
-            localStorage.removeItem("ogShirt", "0");
-            localStorage.removeItem("bwShirt", "0");
-            localStorage.removeItem("obcShirt", "0");
-            localStorage.removeItem("ogTop", "0");
-            localStorage.removeItem("hat", "0");
-            localStorage.removeItem("beanie", "0");
-            localStorage.removeItem("pin", "0");
-        } // Resets all text fields
-
         $(document).ready(function() {
-            alert('An error occured')
-            GrabGeneralLSItems()
-            $('.btn-counter').click(function() {
-                var target = $($(this).data('target')); 
-                var amount = parseInt($(this).data('amount'));
-                currentCount = UpdateCounter(target, amount);
-                
-                SaveToLS(target[0].id, currentCount)
-            });
+        GrabGeneralLSItems();
+        GetExtraLSItems();
+        
+        $('#clearBtn').on('click', function () {
+            if (confirm("Are you sure you want to clear all counters?")) {
+                ClearGeneralLSItems();
+                location.reload();
+            }
+        });
 
-        })
+        // Create new field
+        $('#createFieldBtn').on('click', function () {
+            var newFieldName = $('#newField').val().trim();
+            if (newFieldName === '') {
+                alert("Please fill out text field.");
+                return;
+            }
+
+            var safeId = newFieldName.replace(/\s+/g, '_');
+
+            var createdFields = localStorage.getItem('CreatedFields');
+            if (createdFields !== null) {
+                createdFields += '|' + newFieldName;
+            } else {
+                createdFields = newFieldName;
+            }
+            localStorage.setItem('CreatedFields', createdFields);
+
+            localStorage.setItem(safeId, 0);
+
+            var leftCol = $('#left');
+            var rightCol = $('#right');
+
+            var leftCount = leftCol.children().length;
+            var rightCount = rightCol.children().length;
+            var targetCol = (leftCount <= rightCount) ? leftCol : rightCol;
+
+            targetCol.append(createItemGroup(newFieldName));
+            $('#newField').val('');
+        });
+    });
+
+    $(document).on('click', '.btn-counter', function() {
+        var target = $($(this).data('target'));
+        var amount = parseInt($(this).data('amount'));
+        var currentCount = UpdateCounter(target, amount);
+        SaveToLS(target[0].id, currentCount);
+    });
+
+
+    function UpdateCounter(product, amount) {
+        var counter = parseInt(product.val()) || 0;
+        counter += amount;
+        if (counter < 0) counter = 0;
+        product.val(counter);
+        return counter;
+    }
+
+    function SaveToLS(name, data) {
+        localStorage.setItem(name.toString(), data.toString());
+    }
+
+    function GetLSItem(name) {
+        var value = localStorage.getItem(name);
+        return value !== null ? parseInt(value) : 0;
+    }
+
+    function GrabGeneralLSItems() {
+        ["iss1","iss2","iss3","ogShirt","bwShirt","obcShirt","ogTop","hat","beanie","pin"].forEach(id => {
+            $("#" + id).val(GetLSItem(id));
+        });
+    }
+
+    function GetExtraLSItems() {
+        var createdFields = localStorage.getItem('CreatedFields');
+        if (!createdFields) return;
+
+        var allItems = createdFields.split('|');
+
+        var leftCol = [];
+        var rightCol = [];
+
+        for (var i = 0; i < allItems.length; i++) {
+            if (i % 2 === 0) leftCol.push(allItems[i].trim());
+            else rightCol.push(allItems[i].trim());
+        }
+
+        var leftElem = $('#left');
+        var rightElem = $('#right');
+
+        leftCol.forEach(item => leftElem.append(createItemGroup(item)));
+        rightCol.forEach(item => rightElem.append(createItemGroup(item)));
+    }
+
+    function createItemGroup(itemName) {
+        var safeId = itemName.replace(/\s+/g, '_');
+        var value = GetLSItem(safeId);
+
+        return `
+            <div class="input-group mb-3">
+                <span class="input-group-text">${itemName}</span>
+                <button class="btn btn-primary btn-counter" data-target="#${safeId}" data-amount="-1">-</button>
+                <input type="number" class="form-control" value="${value}" id="${safeId}" readonly>
+                <button class="btn btn-primary btn-counter" data-target="#${safeId}" data-amount="1">+</button>
+            </div>
+        `;
+    }
+
+    // Clear everything. change name
+    function ClearGeneralLSItems() {
+        ["iss1","iss2","iss3","ogShirt","bwShirt","obcShirt","ogTop","hat","beanie","pin"].forEach(id => {
+            localStorage.removeItem(id);
+        });
+        var createdFields = localStorage.getItem('CreatedFields');
+        if (createdFields) {
+            createdFields.split('|').forEach(name => {
+                var safeId = name.replace(/\s+/g, '_');
+                localStorage.removeItem(safeId);
+            });
+            localStorage.removeItem('CreatedFields');
+        }
+    }
+
     </script>
 </html>
