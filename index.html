@@ -133,61 +133,31 @@
             product.val(counter);
         }
 
-        function CreateCookie() {
-            const d = new Date();
-            d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000)); 
-            const expires = "expires=" + d.toUTCString(); // The cookie will expire in 30 days
-            document.cookie = "username=ProductCounter; " + expires + "; path=/";
-            console.log("Cookie created")
+        function SaveToLS(name, data) {
+            localStorage.setItem(name.toString(), data.toString());
         }
 
-        function GetCookie(cName) {
-            let name = cName + "=";
-            let decodedCookie = decodeURIComponent(document.cookie);
-            let ca = decodedCookie.split(';');
-
-            for (let i = 0; i <ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return '';
-        } 
-
-        function CheckCookie() {
-            let username = GetCookie("username");
-            if (username != '') {
-                console.log('Cookie exist!')
-                return true;
+        function GetLSItem(name) {
+            var value = localStorage.getItem("count");
+            if (value !== null) {
+                return parseInt(value);
             } else {
-                return false;
+                return 0;
             }
         }
 
-        function AddToCookie() {
-
+        function GrabGeneralLSItems() {
+            $("#iss1").val(GetLSItem("iss1"))
         }
 
         $(document).ready(function() {
-
+            GrabGeneralLSItems()
             $('.btn-counter').click(function() {
                 var target = $($(this).data('target')); 
                 var amount = parseInt($(this).data('amount'));
                 UpdateCounter(target, amount);
 
-                if (CheckCookie()) {
-                    alert("Cookie Exists!")
-                } else {
-                    CreateCookie()
-                    document.cookie
-                }
-
-                console.log(target[0].id, amount)
+                SaveToLS(target[0].id, amount)
             });
 
         })
