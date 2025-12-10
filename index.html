@@ -161,19 +161,20 @@
         }
 
         function ClearGeneralLSItems() {
-            localStorage.setItem("iss1", "0");
-            localStorage.setItem("iss2", "0");
-            localStorage.setItem("iss3", "0");
-            localStorage.setItem("ogShirt", "0");
-            localStorage.setItem("bwShirt", "0");
-            localStorage.setItem("obcShirt", "0");
-            localStorage.setItem("ogTop", "0");
-            localStorage.setItem("hat", "0");
-            localStorage.setItem("beanie", "0");
-            localStorage.setItem("pin", "0");
+            localStorage.removeItem("iss1", "0");
+            localStorage.removeItem("iss2", "0");
+            localStorage.removeItem("iss3", "0");
+            localStorage.removeItem("ogShirt", "0");
+            localStorage.removeItem("bwShirt", "0");
+            localStorage.removeItem("obcShirt", "0");
+            localStorage.removeItem("ogTop", "0");
+            localStorage.removeItem("hat", "0");
+            localStorage.removeItem("beanie", "0");
+            localStorage.removeItem("pin", "0");
         } // Resets all text fields
 
         $(document).ready(function() {
+            alert('An error occured')
             GrabGeneralLSItems()
             $('.btn-counter').click(function() {
                 var target = $($(this).data('target')); 
