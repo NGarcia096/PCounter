@@ -12,7 +12,7 @@
     <style>
         .input-group-text {
             width: 110px;
-            justify-content: center; /* optional: centers the text */
+            justify-content: center;
         }
 
     </style>
@@ -123,6 +123,7 @@
     </body>
 
     <script>
+        
         function UpdateCounter(product, amount) {
             var counter = parseInt(product.val()) || 0;
             counter += amount;
@@ -132,12 +133,61 @@
             product.val(counter);
         }
 
+        function CreateCookie() {
+            const d = new Date();
+            d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000)); 
+            const expires = "expires=" + d.toUTCString(); // The cookie will expire in 30 days
+            document.cookie = "username=ProductCounter; " + expires + "; path=/";
+            console.log("Cookie created")
+        }
+
+        function GetCookie(cName) {
+            let name = cName + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+
+            for (let i = 0; i <ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return '';
+        } 
+
+        function CheckCookie() {
+            let username = GetCookie("username");
+            if (username != '') {
+                console.log('Cookie exist!')
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function AddToCookie() {
+
+        }
+
         $(document).ready(function() {
 
             $('.btn-counter').click(function() {
                 var target = $($(this).data('target')); 
                 var amount = parseInt($(this).data('amount'));
                 UpdateCounter(target, amount);
+
+                if (CheckCookie()) {
+
+                } else {
+                    CreateCookie()
+                    document.cookie
+                }
+
+                console.log(target[0].id, amount)
             });
 
         })
